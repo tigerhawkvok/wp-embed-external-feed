@@ -5,13 +5,48 @@
  * Description: Include external feeds in your Wordpress page
  * Author: Philip Kahn
  * Author URI:
- * Version: 1.0.0
+ * Version: 1.1.0
  * License: MIT
  ***/
 
 /*************************************
  * Core feed insertion functions
  **************************************/
+
+function load_feeds_async($feeds_list)
+{
+  /***
+   * Take a list of feed items with parameters, and load them
+   * asynchronously
+   *
+   * @param array $feeds_list Each item here should be in a numeric
+   * key, with the following keys:
+   * url => the feed URL (only mandatory key)
+   * raw => false returns the HTML formatting, and true returns a JSON
+   * object of feed data;
+   * random => shuffle the returned posts
+   * decode_entities => decode the entities in the post
+   * limit => number of items to return
+   * override_feed_title => replace the feed's title with this one
+   * See embed_feed() for more details on each key
+   ***/
+
+  # Set the feed lists as window.feedBlobObject
+  # Set the async API target as JS variable
+  # window.feedBlobObject.embedFeedAsyncTarget
+  wp_register_script(
+    "aynsc-feed-load",
+    dirname(__FILE__)."/js/wp_embed_external_feed_load_async.min.js",
+    array("jquery")
+  );
+  wp_enqueue_script("async-feed-load");
+  $script_params = array(
+    "embedFeedAsyncTarget"=>dirname(__FILE__)."/wp-embed-external-feed-async.php",
+    "pluginPath"=>dirname(__FILE__),
+    "feedData" => $feeds_list
+  );
+  wp_localize_script("async-feed-load","feedBlobObject",$script_params);
+}
 
 function read_rss($url=null,$random=false,$limit=5)
 {
@@ -27,7 +62,7 @@ function read_rss($url=null,$random=false,$limit=5)
    * "feed_link", and post data in keys represented by the Unix posting
    * time, containing the post link, title, date, time, and description
    ***/
-  
+
   if($url==null) $url='http://newscenter.berkeley.edu/feed/';
   try
     {
@@ -64,7 +99,7 @@ function read_rss($url=null,$random=false,$limit=5)
            * post, we look for at least one exploded element, eg, a
            * 2-item array
            */
-          if(sizeof($item_list) < 2 ) 
+          if(sizeof($item_list) < 2 )
             {
               // Try an alternate
               $item_list = explode("<entry>",$data);
@@ -212,7 +247,7 @@ function format_feed_item($item,$decode_entities = false)
 
 
 
-function relative_time($time, $postfix = ' ago', $fallback = 'F Y') 
+function relative_time($time, $postfix = ' ago', $fallback = 'F Y')
 {
   /***
    * Returns a pretty time.
@@ -221,25 +256,25 @@ function relative_time($time, $postfix = ' ago', $fallback = 'F Y')
    * @param string $postfix After the relative time. (Default: "ago")
    * @param string $fallback If it can't be parsed, what format to
    * return the pretty time in. See the documentation here:
-   * http://us3.php.net/manual/en/function.date.php#refsect1-function.date-parameters 
+   * http://us3.php.net/manual/en/function.date.php#refsect1-function.date-parameters
    ***/
   $diff = time() - $time;
-  if($diff < 60) 
+  if($diff < 60)
     return $diff . ' second'. ($diff != 1 ? 's' : '') . $postfix;
   $diff = round($diff/60);
-  if($diff < 60) 
+  if($diff < 60)
     return $diff . ' minute'. ($diff != 1 ? 's' : '') . $postfix;
   $diff = round($diff/60);
-  if($diff < 24) 
+  if($diff < 24)
     return $diff . ' hour'. ($diff != 1 ? 's' : '') . $postfix;
   $diff = round($diff/24);
-  if($diff < 7) 
+  if($diff < 7)
     return $diff . ' day'. ($diff != 1 ? 's' : '') . $postfix;
   $diff = round($diff/7);
-  if($diff < 4) 
+  if($diff < 4)
     return $diff . ' week'. ($diff != 1 ? 's' : '') . $postfix;
   $diff = round($diff/4);
-  if($diff < 12) 
+  if($diff < 12)
     return $diff . ' month'. ($diff != 1 ? 's' : '') . $postfix;
 
   return date($fallback, strtotime($date));
@@ -311,7 +346,7 @@ function getTagAttributes($string,$tag,$all=false)
                 {
                   $pair=explode("=",$attribute);
                   $i=0;
-                  foreach($pair as $value) 
+                  foreach($pair as $value)
                     {
                       # remove leading or trailing quote
                       $value=str_replace('"',"",$value);
