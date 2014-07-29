@@ -1,7 +1,7 @@
 <?php
 /***
  * Plugin Name: wp-embed-external-feed
- * Plugin URI: 
+ * Plugin URI: https://github.com/tigerhawkvok/wp-embed-external-feed
  * Description: Include external feeds in your Wordpress page
  * Author: Philip Kahn
  * Author URI:
