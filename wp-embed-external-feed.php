@@ -36,13 +36,13 @@ function load_feeds_async($feeds_list)
   # window.feedBlobObject.embedFeedAsyncTarget
   wp_register_script(
     "aynsc-feed-load",
-    dirname(__FILE__)."/js/wp_embed_external_feed_load_async.min.js",
+    plugin_dir_url(__FILE__)."/js/wp_embed_external_feed_load_async.min.js",
     array("jquery")
   );
   wp_enqueue_script("async-feed-load");
   $script_params = array(
-    "embedFeedAsyncTarget"=>dirname(__FILE__)."/wp-embed-external-feed-async.php",
-    "pluginPath"=>dirname(__FILE__),
+    "embedFeedAsyncTarget"=>plugin_dir_url(__FILE__)."/wp-embed-external-feed-async.php",
+    "pluginPath"=>plugin_dir_url(__FILE__),
     "feedData" => $feeds_list
   );
   wp_localize_script("async-feed-load","feedBlobObject",$script_params);
