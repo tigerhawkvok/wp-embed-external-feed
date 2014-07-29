@@ -1,10 +1,13 @@
 <?php
-/*
-	Plugin Name: wp-embed-external-feed
-	Plugin URI: http://ssarherps.org
-	Description: Include external feeds in your Wordpress page
-	Author: Philip Kahn
-*/
+/***
+ * Plugin Name: wp-embed-external-feed
+ * Plugin URI: 
+ * Description: Include external feeds in your Wordpress page
+ * Author: Philip Kahn
+ * Author URI:
+ * Version: 1.0.0
+ * License: MIT
+ ***/
 
 /*************************************
  * Core feed insertion functions
