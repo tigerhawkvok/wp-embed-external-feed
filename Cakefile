@@ -9,7 +9,7 @@ config =
   srcDir:  'coffee'
   outDir:  'js'
   inFiles: [ 'color', 'imageCanvas', 'app' ]
-  outFile: 'c'
+  outFile: 'wp_embed_external_feed_load_async'
   yuic:    'yuicompressor.jar'
 
 outJS    = "#{config.outDir}/#{config.outFile}"
