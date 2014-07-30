@@ -18,3 +18,20 @@ your theme should come along.
    allow PHP to run directly in your code
 2. Add `[insert_php]echo embed_feed("FEED_URL_HERE");[/insert_php]` to
    place the feed in that location
+
+### Aysnchronous
+
+1. Declare your list of feeds, much like this:
+
+   ```php
+   $feeds_list = array(
+     array(
+       "url"=>"http://www.feedurl.com/feedpath",
+       "limit"=>3
+     ),
+    ...
+   );
+   ```
+
+  (see the documentation for embed_feed for more details)
+2. Call `load_feeds_async($feeds_list)`. Add the parameter `true` if this is to be called after scripts have been enqueued.
