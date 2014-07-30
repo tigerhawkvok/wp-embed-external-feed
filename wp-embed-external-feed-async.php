@@ -6,7 +6,7 @@ if(!function_exists('microtime_float'))
   {
     function microtime_float()
     {
-      if(version_compare(phpversion(), '5.0.0', '<'))
+      if(version_compare(PHP_VERSION, '5.0.0', '<'))
         {
           list($usec, $sec) = explode(" ", microtime());
           return ((float)$usec + (float)$sec);
@@ -62,17 +62,26 @@ function returnAjax($data)
   exit();
 }
 
+function boolstr($string)
+{
+  // returns the boolean of a string 'true' or 'false'
+  if(is_bool($string)) return $string;
+  if(is_string($string)) return strtolower($string)==='true' ? true:false;
+  if(preg_match("/[0-1]/",$string)) return $string=='1' ? true:false;
+  return false;
+}
+
 $url = urldecode($_GET['url']);
-$raw = isset($_GET['raw']) ? $_GET['raw']:false;
-$random = isset($_GET['random']) ? $_GET['random']:false;
-$decode_entities = isset($_GET['decode_entities']) ? $_GET['decode_entities']:false;
-$limit = is_int($_GET['limit']) ? $_GET['limit']:5;
-$override_feed_title = isset($_GET['override_feed_title']) ? $_GET['override_feed_title']:false;
+$raw = isset($_GET['raw']) ? boolstr($_GET['raw']):false;
+$random = isset($_GET['random']) ? boolstr($_GET['random']):false;
+$decode_entities = isset($_GET['decode_entities']) ? boolstr($_GET['decode_entities']):false;
+$limit = is_numeric($_GET['limit']) ? intval($_GET['limit']):5;
+$override_feed_title = isset($_GET['override_feed_title']) && $_GET['override_feed_title'] != "false" ? $_GET['override_feed_title']:false;
 require_once(dirname(__FILE__)."/wp-embed-external-feed.php");
 
 if($raw)
   {
-    returnAjax(array("raw_feed"=>read_rss($url,$random,$limit),"url"=>$url,"limit"=>$limit);
+    returnAjax(array("raw_feed"=>read_rss($url,$random,$limit),"url"=>$url,"limit"=>$limit));
   }
 else
   {

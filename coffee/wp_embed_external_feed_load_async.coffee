@@ -2,6 +2,7 @@
 insertFeedHtml = (feedAggregateObject,insertAfter = "before_feeds") ->
   feedCount = Object.size(feedAggregateObject.feedData)
   i = 0
+  total_time = 0;
   if insertAfter.search("#") isnt 0
     insertAfter = "##{insertAfter}"
   if not $(insertAfter).exists()
@@ -16,15 +17,17 @@ insertFeedHtml = (feedAggregateObject,insertAfter = "before_feeds") ->
     .done (result) ->
       # Insert it into the DOM
       $(insertAfter).after(result.html)
-      console.log("Loaded feed data from",result.url)
+      console.log("Loaded feed data from",result.url,"in #{result.execution_time} ms")
     .fail (result,status) ->
       console.error("Failed to get feed data for",feedObject.url)
       console.warn(result,status)
-    .always ->
+    .always (result) ->
       i++
+      total_time += result.execution_time
       if i is feedCount
         # Stop the loading animation
         stopLoad()
+        console.log("Finished in #{total_time} ms")
 
 ###
 # Helpers

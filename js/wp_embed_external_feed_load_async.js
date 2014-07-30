@@ -3,12 +3,13 @@
   var animateLoad, insertFeedHtml, stopLoad, stopLoadError;
 
   insertFeedHtml = function(feedAggregateObject, insertAfter) {
-    var args, feedCount, feedObject, i, _i, _len, _ref, _results;
+    var args, feedCount, feedObject, i, total_time, _i, _len, _ref, _results;
     if (insertAfter == null) {
       insertAfter = "before_feeds";
     }
     feedCount = Object.size(feedAggregateObject.feedData);
     i = 0;
+    total_time = 0;
     if (insertAfter.search("#") !== 0) {
       insertAfter = "#" + insertAfter;
     }
@@ -26,14 +27,16 @@
       console.log("Pinging", "" + feedAggregateObject.embedFeedAsyncTarget + "?" + args);
       _results.push($.get(feedAggregateObject.embedFeedAsyncTarget, args, "json").done(function(result) {
         $(insertAfter).after(result.html);
-        return console.log("Loaded feed data from", result.url);
+        return console.log("Loaded feed data from", result.url, "in " + result.execution_time + " ms");
       }).fail(function(result, status) {
         console.error("Failed to get feed data for", feedObject.url);
         return console.warn(result, status);
-      }).always(function() {
+      }).always(function(result) {
         i++;
+        total_time += result.execution_time;
         if (i === feedCount) {
-          return stopLoad();
+          stopLoad();
+          return console.log("Finished in " + total_time + " ms");
         }
       }));
     }
