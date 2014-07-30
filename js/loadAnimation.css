@@ -1,12 +1,16 @@
 #status-container {
     position: fixed;
-    top: 0;
-    left: 0;
+    top: 50%;
+    left: 50%;
     text-align: left;
     z-index: 300;
 }
 
 /* STOP ANIMATION */
+
+.nodisp {
+    display:none!important;
+}
 
 .stop {
     animation-play-state: paused;
@@ -25,13 +29,13 @@
     box-shadow: 0 0 15px #ff0000!important;
 }
 .bballgood {
-    border-color: rgba(45, 255, 0, 0.9)!important;
+    border-color: rgba(5, 205, 100, 0.9)!important;
 }
 .ballgood {
-    box-shadow: 0 0 35px #2aff00!important;
+    box-shadow: 0 0 35px rgba(5, 205, 100, 0.5)!important;
 }
 .ball1good {
-    box-shadow: 0 0 15px #2aff00!important;
+    box-shadow: 0 0 15px rgba(5, 205, 100, 0.5)!important;
 }
 .ball,
 .ball1 {
@@ -41,17 +45,17 @@
     -o-transition: all .2s ease-out;
     opacity: .9;
     background-color: rgba(0, 0, 0, 0);
-    border-color: rgba(0, 174, 255, .9);
+    border-color: rgba(0, 50, 255, .9);
     border-style: solid;
 }
 .ball {
-    border-width: 5px;
+    border-width: 4px;
     border-top-color: rgba(0, 0, 0, 0)!important;
     ;
     border-left-color: rgba(0, 0, 0, 0)!important;
     ;
     border-radius: 50px;
-    box-shadow: 0 0 35px #00aeff;
+    box-shadow: 0 0 35px rgba(0, 50, 255, .5);
     animation: spin .3s infinite linear;
     -moz-animation: spin .3s infinite linear;
     -webkit-animation: spin .3s infinite linear;
@@ -62,7 +66,7 @@
     border-top-color: rgba(0, 0, 0, 0)!important;
     border-left-color: rgba(0, 0, 0, 0)!important;
     border-radius: 50px;
-    box-shadow: 0 0 15px #00aeff;
+    box-shadow: 0 0 15px rgba(0, 50, 255, .5);
     position: relative;
     animation: spinoff .3s infinite linear;
     -moz-animation: spinoff .3s infinite linear;

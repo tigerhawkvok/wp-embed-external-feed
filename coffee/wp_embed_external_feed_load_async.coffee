@@ -1,8 +1,11 @@
 # Pull the feed data ...
 insertFeedHtml = (feedAggregateObject,insertAfter = "before_feeds") ->
+  # Begin the loading animation
+  animateLoad()
   feedCount = Object.size(feedAggregateObject.feedData)
   i = 0
   total_time = 0;
+  scriptStart = Date.now()
   if insertAfter.search("#") isnt 0
     insertAfter = "##{insertAfter}"
   if not $(insertAfter).exists()
@@ -29,7 +32,8 @@ insertFeedHtml = (feedAggregateObject,insertAfter = "before_feeds") ->
       if i is feedCount
         # Stop the loading animation
         stopLoad()
-        console.log("Finished feed loads in #{total_time} ms")
+        real_time = Date.now() - scriptStart
+        console.log("Finished feed loads with #{total_time} ms total load time (linear), and #{real_time} ms actual load time (asynchronous net)")
 
 ###
 # Helpers
@@ -42,10 +46,18 @@ Object.size = (obj) ->
 
 jQuery.fn.exists = -> jQuery(this).length > 0
 
+roundNumber = (number,digits = 0) ->
+  multiple = 10 ** digits
+  Math.round(number * multiple) / multiple
+
+delay = (ms,f) -> setTimeout(f,ms)
+
 # Animations
 
-animateLoad = (d=50,elId="#status-container") ->
+animateLoad = (d = 48,elId = "#status-container") ->
   try
+    if not $(elId).exists()
+      $("body").append("<div id='#{elId.slice(1)}'><div class='ball stop nodisp'></div><div class='ball1 stop nodisp'></div></div>")
     if $(elId).exists()
       sm_d = roundNumber(d * .5)
       big = $(elId).find('.ball')
@@ -54,8 +66,10 @@ animateLoad = (d=50,elId="#status-container") ->
       big.css
         width:"#{d}px"
         height:"#{d}px"
-      offset = roundNumber(d / 2 + sm_d/2 + 9)
-      offset2 = roundNumber((d + 10) / 2 - (sm_d+6)/2)
+      offset = roundNumber(d / 2 + sm_d/2)
+      # Offset one side of padding for the big one, adjusted by the
+      # whole real diameter of the small
+      offset2 = roundNumber((d + 4) / 2 - (sm_d+6)/2)
       small.removeClass('stop nodisp')
       small.css
         width:"#{sm_d}px"
@@ -63,11 +77,12 @@ animateLoad = (d=50,elId="#status-container") ->
         top:"-#{offset}px"
         'margin-left':"#{offset2}px"
       return true
+    console.log("Could not start animate loader because #{elId} doesn't exist.")
     false
   catch e
     console.log('Could not animate loader', e.message);
 
-stopLoad = (elId="#status-container",fadeOut = 500) ->
+stopLoad = (elId = "#status-container",fadeOut = 500) ->
     try
       if $(elId).exists()
         big = $(elId).find('.ball')
@@ -83,7 +98,7 @@ stopLoad = (elId="#status-container",fadeOut = 500) ->
       console.log('Could not stop load animation', e.message);
 
 
-stopLoadError = (elId="#status-container",fadeOut = 1500) ->
+stopLoadError = (elId = "#status-container",fadeOut = 1500) ->
   try
     if $(elId).exists()
       big = $(elId).find('.ball')
@@ -108,11 +123,9 @@ $ ->
     rel:"stylesheet"
     type:"text/css"
     media:"screen"
-    href:"#{window.feedBlobObject.pluginPath}js/loadAnimations.css"
+    href:"#{window.feedBlobObject.pluginPath}js/loadAnimation.css"
     }).appendTo("head")
   try
-    # Begin the loading animation
-    animateLoad()
     insertFeedHtml(window.feedBlobObject)
   catch e
     console.error("Couldn't insert feed items into page:",e.message)

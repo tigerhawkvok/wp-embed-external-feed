@@ -5,7 +5,7 @@
  * Description: Include external feeds in your Wordpress page
  * Author: Philip Kahn
  * Author URI:
- * Version: 1.1.0
+ * Version: 1.1.1
  * License: MIT
  ***/
 
