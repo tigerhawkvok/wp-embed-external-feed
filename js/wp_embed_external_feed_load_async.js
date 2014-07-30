@@ -3,7 +3,7 @@
   var animateLoad, insertFeedHtml, stopLoad, stopLoadError;
 
   insertFeedHtml = function(feedAggregateObject, insertAfter) {
-    var args, feedCount, feedObject, i, total_time, _i, _len, _ref, _results;
+    var args, feedContainerId, feedCount, feedObject, i, total_time, _i, _len, _ref, _results;
     if (insertAfter == null) {
       insertAfter = "before_feeds";
     }
@@ -16,6 +16,8 @@
     if (!$(insertAfter).exists()) {
       $($(".entry-content")[0]).append("<span id='" + insertAfter + "'></span>");
     }
+    feedContainerId = "feedCollectionContainer";
+    $(insertAfter).after("<div id='" + feedContainerId + "'></div>");
     _ref = feedAggregateObject.feedData;
     _results = [];
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -24,9 +26,8 @@
         continue;
       }
       args = "random=" + feedObject.random + "&decode_entities=" + feedObject.decode_entities + "&limit=" + feedObject.limit + "&override_feed_title=" + feedObject.override_feed_title + "&url=" + feedObject.url;
-      console.log("Pinging", "" + feedAggregateObject.embedFeedAsyncTarget + "?" + args);
       _results.push($.get(feedAggregateObject.embedFeedAsyncTarget, args, "json").done(function(result) {
-        $(insertAfter).after(result.html);
+        $("#" + feedContainerId).append(result.html);
         return console.log("Loaded feed data from", result.url, "in " + result.execution_time + " ms");
       }).fail(function(result, status) {
         console.error("Failed to get feed data for", feedObject.url);
@@ -36,7 +37,7 @@
         total_time += result.execution_time;
         if (i === feedCount) {
           stopLoad();
-          return console.log("Finished in " + total_time + " ms");
+          return console.log("Finished feed loads in " + total_time + " ms");
         }
       }));
     }

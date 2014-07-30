@@ -7,16 +7,18 @@ insertFeedHtml = (feedAggregateObject,insertAfter = "before_feeds") ->
     insertAfter = "##{insertAfter}"
   if not $(insertAfter).exists()
     $($(".entry-content")[0]).append("<span id='#{insertAfter}'></span>")
+  feedContainerId = "feedCollectionContainer"
+  $(insertAfter).after("<div id='#{feedContainerId}'></div>")
   for feedObject in feedAggregateObject.feedData
     if feedObject.raw is true
       # We want to skip raw objects, they have to be handled manually
       continue
     args = "random=#{feedObject.random}&decode_entities=#{feedObject.decode_entities}&limit=#{feedObject.limit}&override_feed_title=#{feedObject.override_feed_title}&url=#{feedObject.url}"
-    console.log("Pinging","#{feedAggregateObject.embedFeedAsyncTarget}?#{args}")
+    # console.log("Pinging","#{feedAggregateObject.embedFeedAsyncTarget}?#{args}")
     $.get(feedAggregateObject.embedFeedAsyncTarget,args,"json")
     .done (result) ->
       # Insert it into the DOM
-      $(insertAfter).after(result.html)
+      $("##{feedContainerId}").append(result.html)
       console.log("Loaded feed data from",result.url,"in #{result.execution_time} ms")
     .fail (result,status) ->
       console.error("Failed to get feed data for",feedObject.url)
@@ -27,7 +29,7 @@ insertFeedHtml = (feedAggregateObject,insertAfter = "before_feeds") ->
       if i is feedCount
         # Stop the loading animation
         stopLoad()
-        console.log("Finished in #{total_time} ms")
+        console.log("Finished feed loads in #{total_time} ms")
 
 ###
 # Helpers
