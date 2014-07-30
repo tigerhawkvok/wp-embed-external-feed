@@ -23,6 +23,7 @@
         continue;
       }
       args = "random=" + feedObject.random + "&decode_entities=" + feedObject.decode_entities + "&limit=" + feedObject.limit + "&override_feed_title=" + feedObject.override_feed_title + "&url=" + feedObject.url;
+      console.log("Pinging", "" + feedAggregateObject.embedFeedAsyncTarget + "?" + args);
       _results.push($.get(feedAggregateObject.embedFeedAsyncTarget, args, "json").done(function(result) {
         $(insertAfter).after(result.html);
         return console.log("Loaded feed data from", result.url);
@@ -160,7 +161,7 @@
       rel: "stylesheet",
       type: "text/css",
       media: "screen",
-      href: "" + window.feedBlobObject.pluginPath + "/js/loadAnimations.css"
+      href: "" + window.feedBlobObject.pluginPath + "js/loadAnimations.css"
     }).appendTo("head");
     try {
       animateLoad();

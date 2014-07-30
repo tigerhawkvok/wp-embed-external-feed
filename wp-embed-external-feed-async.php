@@ -2,6 +2,22 @@
 
 if(isset($_SERVER['QUERY_STRING'])) parse_str($_SERVER['QUERY_STRING'],$_GET);
 
+if(!function_exists('microtime_float'))
+  {
+    function microtime_float()
+    {
+      if(version_compare(phpversion(), '5.0.0', '<'))
+        {
+          list($usec, $sec) = explode(" ", microtime());
+          return ((float)$usec + (float)$sec);
+        }
+      else
+        {
+          return microtime(true);
+        }
+    }
+  }
+
 $start_script_timer = microtime_float();
 
 if(!function_exists('elapsed'))
@@ -46,7 +62,7 @@ function returnAjax($data)
   exit();
 }
 
-$url = url_decode($_GET['url']);
+$url = urldecode($_GET['url']);
 $raw = isset($_GET['raw']) ? $_GET['raw']:false;
 $random = isset($_GET['random']) ? $_GET['random']:false;
 $decode_entities = isset($_GET['decode_entities']) ? $_GET['decode_entities']:false;
@@ -56,7 +72,7 @@ require_once(dirname(__FILE__)."/wp-embed-external-feed.php");
 
 if($raw)
   {
-    returnAjax(read_rss($url,$random,$limit));
+    returnAjax(array("raw_feed"=>read_rss($url,$random,$limit),"url"=>$url,"limit"=>$limit);
   }
 else
   {

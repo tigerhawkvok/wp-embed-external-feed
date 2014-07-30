@@ -11,6 +11,7 @@ insertFeedHtml = (feedAggregateObject,insertAfter = "before_feeds") ->
       # We want to skip raw objects, they have to be handled manually
       continue
     args = "random=#{feedObject.random}&decode_entities=#{feedObject.decode_entities}&limit=#{feedObject.limit}&override_feed_title=#{feedObject.override_feed_title}&url=#{feedObject.url}"
+    console.log("Pinging","#{feedAggregateObject.embedFeedAsyncTarget}?#{args}")
     $.get(feedAggregateObject.embedFeedAsyncTarget,args,"json")
     .done (result) ->
       # Insert it into the DOM
@@ -102,7 +103,7 @@ $ ->
     rel:"stylesheet"
     type:"text/css"
     media:"screen"
-    href:"#{window.feedBlobObject.pluginPath}/js/loadAnimations.css"
+    href:"#{window.feedBlobObject.pluginPath}js/loadAnimations.css"
     }).appendTo("head")
   try
     # Begin the loading animation

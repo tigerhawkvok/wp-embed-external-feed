@@ -13,7 +13,7 @@
  * Core feed insertion functions
  **************************************/
 
-function load_feeds_async($feeds_list)
+function load_feeds_async($feeds_list = null, $load_now = false)
 {
   /***
    * Take a list of feed items with parameters, and load them
@@ -31,21 +31,47 @@ function load_feeds_async($feeds_list)
    * See embed_feed() for more details on each key
    ***/
 
-  # Set the feed lists as window.feedBlobObject
-  # Set the async API target as JS variable
-  # window.feedBlobObject.embedFeedAsyncTarget
-  wp_register_script(
-    "aynsc-feed-load",
-    plugin_dir_url(__FILE__)."/js/wp_embed_external_feed_load_async.min.js",
-    array("jquery")
-  );
-  wp_enqueue_script("async-feed-load");
+  if(empty($feeds_list))
+    {
+      global $global_feeds_list;
+      $feeds_list = $global_feeds_list;
+    }
+  foreach($feeds_list as $k=>$feed)
+    {
+      # Clean up the objects coming in
+      $feed['url'] = urlencode($feed['url']);
+      $feed['raw'] = isset($feed['raw']) ? $feed['raw']:false;
+      $feed['random'] = isset($feed['random']) ? $feed['random']:false;
+      $feed['decode_entities'] = isset($feed['decode_entities']) ? $feed['decode_entities']:false;
+      $feed['limit'] = is_int($feed['limit']) ? $feed['limit']:5;
+      $feed['override_feed_title'] = isset($feed['override_feed_title']) ? $feed['override_feed_title']:false;
+      $feeds_list[$k] = $feed;
+    }
+  $feed_object = "feedBlobObject";
   $script_params = array(
-    "embedFeedAsyncTarget"=>plugin_dir_url(__FILE__)."/wp-embed-external-feed-async.php",
+    "embedFeedAsyncTarget"=>plugin_dir_url(__FILE__)."wp-embed-external-feed-async.php",
     "pluginPath"=>plugin_dir_url(__FILE__),
     "feedData" => $feeds_list
   );
-  wp_localize_script("async-feed-load","feedBlobObject",$script_params);
+  if($load_now)
+    {
+      $params_json = json_encode($script_params);
+      echo "<script type='text/javascript'>".$feed_object." = ".$params_json.";\n</script>";
+      echo "<script src='".plugin_dir_url(__FILE__)."js/wp_embed_external_feed_load_async.min.js' type='text/javascript'></script>\n";
+    }
+  else
+    {
+      # Set the feed lists as window.feedBlobObject
+      # Set the async API target as JS variable
+      # window.feedBlobObject.embedFeedAsyncTarget
+      wp_register_script(
+        "aynsc-feed-load",
+        plugin_dir_url(__FILE__)."/js/wp_embed_external_feed_load_async.min.js",
+        array("jquery")
+      );
+      wp_enqueue_script("async-feed-load");
+      wp_localize_script("async-feed-load",$feed_object,$script_params);
+    }
 }
 
 function read_rss($url=null,$random=false,$limit=5)
@@ -72,7 +98,7 @@ function read_rss($url=null,$random=false,$limit=5)
   catch(Exception $e)
     {
       # Compatibility
-      $ch = curl_init("$url");
+      $ch = curl_init($url);
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
       curl_setopt($ch, CURLOPT_HEADER, 0);
       $data = curl_exec($ch);
@@ -81,13 +107,14 @@ function read_rss($url=null,$random=false,$limit=5)
   if (empty($data))
     {
       # Compatibility
-      $ch = curl_init("$url");
+      $ch = curl_init($url);
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
       curl_setopt($ch, CURLOPT_HEADER, 0);
       $data = curl_exec($ch);
       curl_close($ch);
     }
-  if(strpos($data,"<?xml")!==false)
+  $xml_dec_pos = strpos($data,"<?xml");
+  if($xml_dec_pos !== false)
     {
       try
         {
@@ -106,8 +133,8 @@ function read_rss($url=null,$random=false,$limit=5)
               $using_alt = true;
             }
           else $using_alt = false;
-          if(sizeof($item_list) < 2 ) return false;
-          $container=array();
+          if(sizeof($item_list) < 2 ) return array("status"=>false,"error"=>"Invalid post count");
+          $container = array();
           $container['using_alt'] = $using_alt;
           $container['feed_count'] = sizeof($item_list);
           $container['raw_item_list'] = $item_list;
@@ -148,36 +175,40 @@ function read_rss($url=null,$random=false,$limit=5)
                 }
               if($iter>=$limit) break;
             }
-          if(sizeof($container)<=1) return false;
-          if($random===false) return $container;
+          if(sizeof($container)<=1 && !empty($container)) return array("status"=>false,"error"=>"Invalid container size");
+          if($random===false)
+            {
+              # Container should have the correct size, etc, at this point.
+              return $container;
+            }
           else
             {
-              if(is_numeric($random))
-                {
-                  try
-                    {
-                      $temp=array_reverse($container);
-                      $title=array_pop($temp);
-                      shuffle($temp);
-                      $container=array_slice($temp,0,$random);
-                      $container['feed_name']=$title;
-                      return $container;
-                    }
-                  catch(Exception $e)
-                    {
-                      return false;
-                    }
-                }
-              if($random===true) return shuffle($container);
+              $feed_name = $container['feed_name'];
+              $feed_link = $container['feed_link'];
+              unset($container['feed_name']);
+              unset($container['feed_link']);
+              unset($container['feed_count']);
+              unset($container['using_alt']);
+              unset($container['raw_item_list']);
+              shuffle($container);
+              $container['feed_name'] = $feed_name;
+              $container['feed_link'] = $feed_link;
+              $container['using_alt'] = $using_alt;
+              $container['feed_count'] = sizeof($item_list);
+              $container['raw_item_list'] = $item_list;
+              return $container;
             }
         }
       catch(Exception $e)
         {
-          return false;
+          return array("status"=>false,"error"=>"Caught major exception ".$e->getMessage());
         }
     }
-  else return false;
-
+  else
+    {
+      return array("status"=>false,"error"=>"Non-XML data","xml_pos"=>$xml_dec_pos,"url"=>$url,"data"=>$data);
+    }
+  return array("status"=>false,"error"=>"Bad condition: Didn't encounter a return statement in primary loop.");
 }
 
 function embed_feed($url=null,$decode_entities = false,$limit=5,$random=false,$override_feed_title = false)
