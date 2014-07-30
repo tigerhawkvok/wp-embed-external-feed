@@ -33,5 +33,5 @@ your theme should come along.
    );
    ```
 
-  (see the documentation for embed_feed for more details)
+  (see the documentation for the function [`embed_feed()`](wp-embed-external-feed.php) for more details)
 2. Call `load_feeds_async($feeds_list)`. Add the parameter `true` if this is to be called after scripts have been enqueued.
