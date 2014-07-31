@@ -3,7 +3,7 @@
   var animateLoad, delay, insertFeedHtml, roundNumber, stopLoad, stopLoadError;
 
   insertFeedHtml = function(feedAggregateObject, insertAfter) {
-    var args, feedContainerId, feedCount, feedObject, i, scriptStart, total_time, _i, _len, _ref, _results;
+    var args, feedContainerId, feedCount, feedObject, i, scriptFirstDraw, scriptStart, total_time, _i, _len, _ref, _results;
     if (insertAfter == null) {
       insertAfter = "before_feeds";
     }
@@ -11,6 +11,7 @@
     feedCount = Object.size(feedAggregateObject.feedData);
     i = 0;
     total_time = 0;
+    scriptFirstDraw = 0;
     scriptStart = Date.now();
     if (insertAfter.search("#") !== 0) {
       insertAfter = "#" + insertAfter;
@@ -38,10 +39,13 @@
         var real_time;
         i++;
         total_time += result.execution_time;
+        if (i === 1) {
+          scriptFirstDraw = Date.now() - scriptStart;
+        }
         if (i === feedCount) {
           stopLoad();
           real_time = Date.now() - scriptStart;
-          return console.log("Finished feed loads with " + total_time + " ms total load time (linear), and " + real_time + " ms actual load time (asynchronous net)");
+          return console.log("Finished feed loads with first display in " + scriptFirstDraw + " ms, " + total_time + " ms total load time (linear), and " + real_time + " ms actual load time (asynchronous net)");
         }
       }));
     }
