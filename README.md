@@ -9,6 +9,10 @@ You may either use the MIT or GPLv3 license, as is appropriate to the licensing 
 If your work is closed source, you may use MIT; if it is open source, you must use GPLv3.
 Both are available in this repository, as LICENSE and LICENSE-2, respectively.
 
+### YUICompressor
+
+The file `yuicompressor.jar` is from the [YUICompressor project](https://github.com/yui/yuicompressor), with the same BSD license.
+
 ## Usage
 
 Please note the feeds are **unstyled**, but clearly marked up. You'll
