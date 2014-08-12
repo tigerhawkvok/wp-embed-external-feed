@@ -45,3 +45,6 @@ your theme should come along.
 
   (see the documentation for the function [`embed_feed()`](wp-embed-external-feed.php) for more details)
 2. Call `load_feeds_async($feeds_list)`. Add the parameter `true` if this is to be called after scripts have been enqueued.
+3. Give an element the id `before_feeds` (or edit the default, or add the new element ID as an argument in the onload in `coffee/wp_embed_external_feed_load_async.coffee`)
+
+**Note**: Be sure you do your edits in HTML mode. The `>` is changed to `&gt;` in WYSIWYG mode, and this will cause your feeds to fail.
