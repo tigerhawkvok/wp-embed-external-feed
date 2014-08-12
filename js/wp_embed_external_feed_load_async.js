@@ -13,6 +13,11 @@
     total_time = 0;
     scriptFirstDraw = 0;
     scriptStart = Date.now();
+    if (feedAggregateObject.feedInsertAfter != null) {
+      if (feedAggregateObject.feedInsertAfter !== false) {
+        insertAfter = feedAggregateObject.feedInsertAfter;
+      }
+    }
     if (insertAfter.search("#") !== 0) {
       insertAfter = "#" + insertAfter;
     }

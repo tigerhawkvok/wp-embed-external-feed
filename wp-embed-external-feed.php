@@ -5,7 +5,7 @@
  * Description: Include external feeds in your Wordpress page. See README for license info.
  * Author: Philip Kahn
  * Author URI:
- * Version: 1.1.1
+ * Version: 1.1.2
  * License: GPLv3
  ***/
 
@@ -13,7 +13,7 @@
  * Core feed insertion functions
  **************************************/
 
-function load_feeds_async($feeds_list = null, $load_now = false)
+function load_feeds_async($feeds_list = null, $load_now = false, $insert_after = false)
 {
   /***
    * Take a list of feed items with parameters, and load them
@@ -29,6 +29,10 @@ function load_feeds_async($feeds_list = null, $load_now = false)
    * limit => number of items to return
    * override_feed_title => replace the feed's title with this one
    * See embed_feed() for more details on each key
+   * @param boolean $load_now Load the script directly, rather than
+   * enqueuing through Wordpress
+   * @param string $insert_after Specify this to set the ID of the
+   * object after which to insert the feeds
    ***/
 
   if(empty($feeds_list))
@@ -51,7 +55,8 @@ function load_feeds_async($feeds_list = null, $load_now = false)
   $script_params = array(
     "embedFeedAsyncTarget"=>plugin_dir_url(__FILE__)."wp-embed-external-feed-async.php",
     "pluginPath"=>plugin_dir_url(__FILE__),
-    "feedData" => $feeds_list
+    "feedData" => $feeds_list,
+    "feedInsertAfter" => $insert_after
   );
   if($load_now)
     {
@@ -235,7 +240,8 @@ function embed_feed($url=null,$decode_entities = false,$limit=5,$random=false,$o
   if($data!==false)
     {
       $feed_title = $override_feed_title !== false ? $override_feed_title:$data['feed_name'];
-      $buffer="<section class='feed_block'><h1 class='embedded_feed'><a href='".$data['feed_link']."' onclick='window.open(this.href); return false;' onkeypress='window.open(this.href); return false;'>".$feed_title."</a></h1>";
+      $feed_block_id = substr(sha1($feed_title.$data['feed_link']),0,8);
+      $buffer="<section class='feed_block' id='feed_".$feed_block_id."'><h1 class='embedded_feed'><a href='".$data['feed_link']."' onclick='window.open(this.href); return false;' onkeypress='window.open(this.href); return false;'>".$feed_title."</a></h1>";
       $iter=0;
       foreach($data as $k=>$item)
         {

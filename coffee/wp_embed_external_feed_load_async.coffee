@@ -7,6 +7,10 @@ insertFeedHtml = (feedAggregateObject,insertAfter = "before_feeds") ->
   total_time = 0;
   scriptFirstDraw = 0;
   scriptStart = Date.now()
+  if feedAggregateObject.feedInsertAfter?
+    if feedAggregateObject.feedInsertAfter isnt false
+      # The argument was specified in the PHP call
+      insertAfter = feedAggregateObject.feedInsertAfter
   if insertAfter.search("#") isnt 0
     insertAfter = "##{insertAfter}"
   if not $(insertAfter).exists()
